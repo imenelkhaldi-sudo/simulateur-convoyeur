@@ -1,0 +1,811 @@
+/* ============================================
+   SITRAIN Simulator Web — Styles
+   Faithfully reproduces the Windows desktop app
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f0f0;
+    color: #222;
+    min-height: 100vh;
+    overflow: hidden;
+    font-size: 13px;
+}
+
+/* ---- Title Bar ---- */
+.titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    background: linear-gradient(to bottom, #4a7a4a, #3a6a3a);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    user-select: none;
+}
+.titlebar-icon {
+    font-size: 16px;
+}
+.titlebar-version {
+    margin-left: auto;
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+/* ---- Toolbar ---- */
+.toolbar {
+    display: flex;
+    align-items: center;
+    padding: 3px 6px;
+    background: #f0f0f0;
+    border-bottom: 1px solid #ccc;
+    gap: 2px;
+}
+
+.toolbar-btn {
+    padding: 4px 12px;
+    background: #e8e8e8;
+    border: 1px solid #bbb;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+    color: #333;
+    transition: all 0.1s;
+}
+.toolbar-btn:hover {
+    background: #d0d0f0;
+    border-color: #88a;
+}
+.toolbar-btn.active {
+    background: #c0c0e0;
+    border-color: #77a;
+    font-weight: 600;
+}
+
+.toolbar-separator {
+    width: 1px;
+    height: 24px;
+    background: #ccc;
+    margin: 0 6px;
+}
+
+.toolbar-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #555;
+    padding: 3px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background: #f8f8f8;
+    cursor: default;
+    min-width: 180px;
+    transition: all 0.3s;
+}
+.toolbar-status.status-disconnected {
+    border-color: #e88;
+    background: #fff0f0;
+}
+.toolbar-status.status-simulation {
+    border-color: #8b8;
+    background: #f0fff0;
+}
+.toolbar-status.status-plc-connected {
+    border-color: #0a0;
+    background: #e0ffe0;
+}
+.toolbar-status.status-connecting {
+    border-color: #cc0;
+    background: #fffde0;
+}
+.toolbar-status.status-ws-only {
+    border-color: #f90;
+    background: #fff8e0;
+}
+
+.status-text-block {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+#status-label {
+    font-weight: 600;
+    font-size: 11px;
+}
+
+.status-detail {
+    font-size: 9px;
+    color: #888;
+}
+
+.status-indicator {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #c00;
+    border: 2px solid #900;
+    display: inline-block;
+    flex-shrink: 0;
+    transition: all 0.3s;
+}
+.status-indicator.connected {
+    background: #0c0;
+    border-color: #090;
+    box-shadow: 0 0 8px #0c0;
+}
+.status-indicator.connecting {
+    background: #cc0;
+    border-color: #aa0;
+    animation: pulseIndicator 1s infinite;
+}
+.status-indicator.ws-only {
+    background: #f90;
+    border-color: #d70;
+    animation: pulseIndicator 1.5s infinite;
+}
+
+@keyframes pulseIndicator {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+#plc-type-select {
+    padding: 3px 8px;
+    font-size: 12px;
+    border: 1px solid #bbb;
+    border-radius: 3px;
+    background: white;
+    min-width: 100px;
+}
+
+/* ---- Main Container ---- */
+.main-container {
+    display: flex;
+    height: calc(100vh - 58px);
+    background: #5a7a5a;
+}
+
+/* ---- Conveyor View ---- */
+.conveyor-view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.conveyor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 15px;
+    background: #5a7a5a;
+}
+
+.plc-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.plc-info label {
+    font-size: 11px;
+    color: #ccc;
+}
+.ip-input {
+    padding: 2px 6px;
+    font-size: 12px;
+    border: 1px solid #999;
+    border-radius: 2px;
+    width: 140px;
+    background: white;
+}
+
+.siemens-logo {
+    text-align: center;
+}
+.siemens-text {
+    font-size: 32px;
+    font-weight: 700;
+    color: #009999;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.plc-type-info {
+    text-align: right;
+    color: #ddd;
+    font-size: 12px;
+}
+#connection-label {
+    display: block;
+    margin-bottom: 4px;
+}
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #ddd;
+    cursor: pointer;
+}
+.radio-label input[type="radio"] {
+    accent-color: #009999;
+}
+
+/* ---- Conveyor Scene ---- */
+.conveyor-scene {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
+}
+
+#conveyor-svg {
+    width: 100%;
+    max-width: 900px;
+    height: auto;
+}
+
+.place-btn:hover {
+    fill: #5a8a5a;
+    stroke: #8aba8a;
+}
+.place-btn:active {
+    fill: #3a5a3a;
+}
+
+/* BP_Poste push buttons on conveyor */
+.bp-poste-btn {
+    cursor: pointer;
+    transition: all 0.1s;
+}
+.bp-poste-btn:hover {
+    stroke: #ff0 !important;
+    filter: brightness(1.2);
+}
+
+/* ---- Control Panel Window ---- */
+.control-panel-window {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    width: 340px;
+    background: #f0f0f0;
+    border: 1px solid #888;
+    border-radius: 4px;
+    box-shadow: 3px 3px 12px rgba(0,0,0,0.4);
+    z-index: 100;
+    resize: both;
+    overflow: hidden;
+}
+
+.cpw-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 8px;
+    background: linear-gradient(to bottom, #4a7a4a, #3a6a3a);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: move;
+    user-select: none;
+}
+
+.cpw-buttons {
+    display: flex;
+    gap: 2px;
+}
+.cpw-btn {
+    width: 20px;
+    height: 18px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 2px;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    font-size: 14px;
+    line-height: 14px;
+    text-align: center;
+    cursor: pointer;
+    padding: 0;
+}
+.cpw-btn:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.cpw-body {
+    padding: 8px;
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+}
+
+/* Control panel sections */
+.cpw-section {
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #ccc;
+}
+.cpw-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #444;
+    margin-bottom: 4px;
+}
+
+/* TopLights */
+.cpw-toplights {
+    display: flex;
+    justify-content: space-between;
+}
+.toplight-pair {
+    display: flex;
+    gap: 12px;
+}
+.toplight-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: #555;
+}
+.toplight-led {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ccc;
+    border: 2px solid #999;
+    transition: all 0.2s;
+}
+.toplight-led.on-red {
+    background: #e00;
+    border-color: #c00;
+    box-shadow: 0 0 8px #e00;
+}
+.toplight-led.on-green {
+    background: #0c0;
+    border-color: #090;
+    box-shadow: 0 0 8px #0c0;
+}
+
+/* Analog displays */
+.cpw-analog-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.cpw-analog-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.cpw-analog-row label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    min-width: 40px;
+}
+.cpw-analog-display {
+    padding: 2px 6px;
+    font-size: 12px;
+    border: 1px solid #999;
+    background: #fff;
+    width: 80px;
+    text-align: center;
+    font-family: 'Consolas', monospace;
+}
+
+/* Sliders */
+.cpw-sliders-section {
+    padding: 4px 0;
+}
+.cpw-sliders-row {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+.cpw-slider-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+.cpw-slider-group label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #333;
+}
+
+.vertical-slider {
+    writing-mode: vertical-lr;
+    direction: rtl;
+    width: 20px;
+    height: 100px;
+    -webkit-appearance: slider-vertical;
+    appearance: auto;
+    accent-color: #4a7a4a;
+}
+
+/* I/O container */
+.cpw-io-container {
+    display: flex;
+    gap: 16px;
+}
+.cpw-io-column {
+    flex: 1;
+}
+.cpw-io-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #444;
+    margin-bottom: 6px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Switches */
+.cpw-switches-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.switch-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+.switch-label {
+    flex: 1;
+    min-width: 55px;
+    color: #555;
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    line-height: 1.3;
+    text-align: right;
+}
+
+/* Toggle switch */
+.toggle-switch {
+    position: relative;
+    width: 40px;
+    min-width: 40px;
+    height: 20px;
+    background: #aaa;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: 1px solid #888;
+    flex-shrink: 0;
+}
+.toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    top: 1px;
+    left: 2px;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.toggle-switch.on {
+    background: #4a9a4a;
+    border-color: #3a7a3a;
+}
+.toggle-switch.on::after {
+    transform: translateX(19px);
+}
+
+/* LEDs list */
+.cpw-leds-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.led-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+.led-label {
+    min-width: 55px;
+    color: #555;
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+.led-indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ccc;
+    border: 2px solid #999;
+    transition: all 0.15s;
+}
+.led-indicator.on {
+    background: #0c0;
+    border-color: #090;
+    box-shadow: 0 0 10px #0c0;
+}
+
+/* ---- Dialogs ---- */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+}
+
+.dialog {
+    background: #f0f0f0;
+    border: 1px solid #888;
+    border-radius: 4px;
+    box-shadow: 4px 4px 16px rgba(0,0,0,0.4);
+    min-width: 350px;
+    max-width: 500px;
+}
+.dialog.dialog-wide {
+    min-width: 600px;
+    max-width: 800px;
+}
+
+.dialog-title {
+    padding: 6px 12px;
+    background: linear-gradient(to bottom, #4a7a4a, #3a6a3a);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 3px 3px 0 0;
+}
+
+.dialog-body {
+    padding: 12px;
+}
+
+.dialog-body h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #333;
+}
+.dialog-body h4 {
+    font-size: 12px;
+    margin: 10px 0 4px;
+    color: #444;
+}
+.dialog-body p, .dialog-body li {
+    font-size: 12px;
+    color: #555;
+    line-height: 1.5;
+}
+.dialog-body ul {
+    padding-left: 20px;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.form-row label {
+    font-size: 12px;
+    color: #444;
+    white-space: nowrap;
+}
+.form-row select, .form-row input {
+    padding: 3px 6px;
+    font-size: 12px;
+    border: 1px solid #999;
+    border-radius: 2px;
+    flex: 1;
+}
+.form-info {
+    background: #e8f0e8;
+    border: 1px solid #aca;
+    padding: 6px 10px;
+    font-size: 11px;
+    color: #363;
+    border-radius: 3px;
+    margin: 8px 0;
+}
+.form-info code {
+    background: #d0e0d0;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-size: 11px;
+}
+
+.dialog-buttons {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #ddd;
+}
+
+.btn-ok, .btn-cancel {
+    padding: 5px 20px;
+    font-size: 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid #999;
+}
+.btn-ok {
+    background: #4a7a4a;
+    color: white;
+    border-color: #3a6a3a;
+}
+.btn-ok:hover { background: #3a6a3a; }
+.btn-cancel {
+    background: #e0e0e0;
+    color: #333;
+}
+.btn-cancel:hover { background: #d0d0d0; }
+
+/* ---- Variable Table ---- */
+.var-table-tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 8px;
+}
+.vt-tab {
+    padding: 4px 12px;
+    font-size: 11px;
+    background: #ddd;
+    border: 1px solid #bbb;
+    border-radius: 3px 3px 0 0;
+    cursor: pointer;
+    color: #555;
+}
+.vt-tab.active {
+    background: #fff;
+    border-bottom-color: #fff;
+    color: #333;
+    font-weight: 600;
+}
+.vt-tab:hover { background: #e8e8e8; }
+
+.var-table-container {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    background: white;
+}
+
+.var-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+}
+.var-table th {
+    background: #e0e0e0;
+    padding: 4px 8px;
+    text-align: left;
+    font-weight: 600;
+    color: #444;
+    border-bottom: 1px solid #bbb;
+    position: sticky;
+    top: 0;
+}
+.var-table td {
+    padding: 3px 8px;
+    border-bottom: 1px solid #eee;
+    color: #555;
+}
+.var-table tr:hover td {
+    background: #f0f4ff;
+}
+.var-table .val-true {
+    color: #090;
+    font-weight: 700;
+}
+.var-table .val-false {
+    color: #999;
+}
+.var-table .val-int {
+    color: #009;
+    font-family: 'Consolas', monospace;
+}
+.var-table .addr-col {
+    font-family: 'Consolas', monospace;
+    color: #009;
+    font-weight: 600;
+}
+
+.force-checkbox {
+    cursor: pointer;
+    accent-color: #c00;
+}
+
+/* ---- Affichage radio options ---- */
+.affichage-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.affichage-radio {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.affichage-radio:hover {
+    border-color: #4a7a4a;
+    background: #f0f8f0;
+}
+.affichage-radio input[type="radio"] {
+    margin-top: 3px;
+    accent-color: #4a7a4a;
+}
+.affichage-radio-label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.affichage-radio-label strong {
+    font-size: 13px;
+    color: #333;
+}
+.affichage-example {
+    font-size: 11px;
+    font-family: 'Consolas', monospace;
+    color: #777;
+}
+
+/* ---- Piece on belt (semi-circular aluminum disc) ---- */
+.piece-disc {
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+.piece-disc:hover {
+    filter: brightness(1.15);
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #e0e0e0; }
+::-webkit-scrollbar-thumb { background: #aaa; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #888; }
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+    .conveyor-header {
+        flex-direction: column;
+        gap: 6px;
+        align-items: flex-start;
+    }
+    .control-panel-window {
+        width: 300px;
+        right: 5px;
+    }
+}

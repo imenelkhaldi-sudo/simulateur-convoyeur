@@ -1,0 +1,8 @@
+# DLL Siemens : non redistribuable, chargée depuis l'installation PLCSim Advanced du poste
+Siemens.Simatic.Simulation.Runtime.Api*
+# Sorties de compilation (le pont livré est dans publish/)
+PlcBridge/bin/
+PlcBridge/obj/
+*.pdb
+# Outils tiers (NetToPLCsim) : à télécharger séparément
+tools/

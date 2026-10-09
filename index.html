@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convoyeur — SITRAIN Simulator v11 Web</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Title Bar -->
+    <div class="titlebar">
+        <div class="titlebar-icon">&#9881;</div>
+        <span>Convoyeur</span>
+        <span class="titlebar-version">v1.0 Web</span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <button class="toolbar-btn" id="btn-tab-connexion">Connexion</button>
+        <button class="toolbar-btn active" id="btn-tab-panneau">Panneau de contrôle</button>
+        <button class="toolbar-btn" id="btn-tab-affichage">Affichage</button>
+        <button class="toolbar-btn" id="btn-tab-aide">Aide</button>
+        <div class="toolbar-separator"></div>
+        <div class="toolbar-status" id="toolbar-status" title="Cliquer pour voir les détails de connexion">
+            <span class="status-indicator" id="status-indicator"></span>
+            <div class="status-text-block">
+                <span id="status-label">Déconnecté</span>
+                <span id="status-detail" class="status-detail"></span>
+            </div>
+        </div>
+        <div class="toolbar-separator"></div>
+        <select id="plc-type-select">
+            <option value="TIA-PRO1">TIA-PRO1</option>
+            <option value="TIA-PRO2">TIA-PRO2</option>
+            <option value="TIA-GRAPH">TIA-GRAPH</option>
+            <option value="TIA-SERV1">TIA-SERV1</option>
+            <option value="TIA-SERV2">TIA-SERV2</option>
+            <option value="TIA-SYSUP">TIA-SYSUP</option>
+            <option value="CPT-FAP">CPT-FAP</option>
+            <option value="CTP-FAST1">CTP-FAST1</option>
+            <option value="TIA-PRI1">TIA-PRI1</option>
+            <option value="TIA-PJ2">TIA-PJ2</option>
+            <option value="TIA-SPEC1">TIA-SPEC1</option>
+            <option value="TIA-SPEC2">TIA-SPEC2</option>
+        </select>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-container">
+        <!-- Conveyor View (always visible) -->
+        <div class="conveyor-view" id="conveyor-view">
+            <!-- Header info -->
+            <div class="conveyor-header">
+                <div class="plc-info">
+                    <label>Adresse IP PLC :</label>
+                    <input type="text" id="plc-ip-display" value="192.168.0.108" class="ip-input">
+                </div>
+                <div class="siemens-logo">
+                    <span class="siemens-text">SIEMENS</span>
+                </div>
+                <div class="plc-type-info">
+                    <span id="connection-label">Connecté à</span>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="plc-model" value="S7-1500" checked>
+                            <span class="radio-dot"></span> S7-1500
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="plc-model" value="ET200SP">
+                            <span class="radio-dot"></span> ET200SP
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conveyor Belt SVG -->
+            <div class="conveyor-scene">
+                <svg id="conveyor-svg" viewBox="0 0 750 340" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="beltGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#555"/>
+                            <stop offset="50%" style="stop-color:#333"/>
+                            <stop offset="100%" style="stop-color:#222"/>
+                        </linearGradient>
+                        <linearGradient id="sensorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#888"/>
+                            <stop offset="100%" style="stop-color:#555"/>
+                        </linearGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                        <filter id="shadow">
+                            <feDropShadow dx="1" dy="2" stdDeviation="2" flood-opacity="0.4"/>
+                        </filter>
+                    </defs>
+
+                    <!-- Background -->
+                    <rect width="750" height="340" fill="#5a7a5a" rx="4"/>
+
+                    <!-- Conveyor frame / rail (dark bar) -->
+                    <rect x="20" y="130" width="710" height="80" rx="4" fill="#2a2a2a" stroke="#444" stroke-width="1"/>
+
+                    <!-- Belt surface -->
+                    <rect x="25" y="135" width="700" height="70" rx="2" fill="url(#beltGrad)"/>
+
+                    <!-- Belt lines (animated) -->
+                    <g id="belt-lines" clip-path="url(#belt-clip)">
+                        <clipPath id="belt-clip">
+                            <rect x="25" y="135" width="700" height="70" rx="2"/>
+                        </clipPath>
+                        <g id="belt-stripes-group">
+                        </g>
+                    </g>
+
+                    <!-- Station dividers / module slots -->
+                    <rect x="130" y="130" width="120" height="80" fill="none" stroke="#555" stroke-width="0.5"/>
+                    <rect x="260" y="130" width="120" height="80" fill="none" stroke="#555" stroke-width="0.5"/>
+                    <rect x="390" y="130" width="120" height="80" fill="none" stroke="#555" stroke-width="0.5"/>
+                    <rect x="520" y="130" width="120" height="80" fill="none" stroke="#555" stroke-width="0.5"/>
+                    <rect x="650" y="130" width="80" height="80" fill="none" stroke="#555" stroke-width="0.5"/>
+
+                    <!-- Sensors at top -->
+                    <!-- ILS Sensor I3.5 (capteur inductif a lame souple) -->
+                    <g class="sensor-group" transform="translate(170, 50)">
+                        <text x="10" y="-8" text-anchor="middle" fill="#ccc" font-size="11" font-weight="bold" class="sensor-label" data-bit="5">I3.5</text>
+                        <rect x="-5" y="0" width="30" height="18" rx="3" fill="#707070" stroke="#999" stroke-width="1"/>
+                        <rect x="5" y="18" width="10" height="55" fill="#808080" stroke="#999" stroke-width="0.5"/>
+                        <circle cx="10" cy="9" r="4" fill="#444" id="sensor-i35-led"/>
+                        <text x="10" y="85" text-anchor="middle" fill="#9a9" font-size="8" class="sensor-type-label">ILS</text>
+                    </g>
+
+                    <!-- ILS Sensor I3.6 -->
+                    <g class="sensor-group" transform="translate(300, 50)">
+                        <text x="10" y="-8" text-anchor="middle" fill="#ccc" font-size="11" font-weight="bold" class="sensor-label" data-bit="6">I3.6</text>
+                        <rect x="-5" y="0" width="30" height="18" rx="3" fill="#707070" stroke="#999" stroke-width="1"/>
+                        <rect x="5" y="18" width="10" height="55" fill="#808080" stroke="#999" stroke-width="0.5"/>
+                        <circle cx="10" cy="9" r="4" fill="#444" id="sensor-i36-led"/>
+                        <text x="10" y="85" text-anchor="middle" fill="#9a9" font-size="8" class="sensor-type-label">ILS</text>
+                    </g>
+
+                    <!-- ILS Sensor I3.7 -->
+                    <g class="sensor-group" transform="translate(430, 50)">
+                        <text x="10" y="-8" text-anchor="middle" fill="#ccc" font-size="11" font-weight="bold" class="sensor-label" data-bit="7">I3.7</text>
+                        <rect x="-5" y="0" width="30" height="18" rx="3" fill="#707070" stroke="#999" stroke-width="1"/>
+                        <rect x="5" y="18" width="10" height="55" fill="#808080" stroke="#999" stroke-width="0.5"/>
+                        <circle cx="10" cy="9" r="4" fill="#444" id="sensor-i37-led"/>
+                        <text x="10" y="85" text-anchor="middle" fill="#9a9" font-size="8" class="sensor-type-label">ILS</text>
+                    </g>
+
+                    <!-- Optical Sensor I3.0 (capteur optique - normalement actif, coupe par piece) -->
+                    <g class="sensor-group" transform="translate(565, 50)">
+                        <text x="10" y="-8" text-anchor="middle" fill="#ccc" font-size="11" font-weight="bold" class="sensor-label" data-bit="0">I3.0</text>
+                        <!-- Emitter top -->
+                        <rect x="0" y="0" width="20" height="14" rx="2" fill="#333" stroke="#666" stroke-width="1"/>
+                        <circle cx="10" cy="7" r="3" fill="#900" id="sensor-i30-emitter"/>
+                        <!-- Beam line (visible when not blocked) -->
+                        <line x1="10" y1="14" x2="10" y2="128" stroke="#ff3333" stroke-width="2" stroke-dasharray="4,3" opacity="0.7" id="sensor-i30-beam"/>
+                        <!-- Receiver bottom (on belt level) -->
+                        <rect x="0" y="128" width="20" height="10" rx="2" fill="#333" stroke="#666" stroke-width="1"/>
+                        <circle cx="10" cy="133" r="3" fill="#600" id="sensor-i30-receiver"/>
+                        <circle cx="10" cy="7" r="3" fill="#444" id="sensor-i30-led"/>
+                        <text x="10" y="150" text-anchor="middle" fill="#c99" font-size="8" class="sensor-type-label">OPT</text>
+                    </g>
+
+                    <!-- Place piece buttons (only at ILS sensor positions) -->
+                    <!-- Station 1 (under ILS I3.5) -->
+                    <g class="station-group" transform="translate(130, 215)">
+                        <rect x="15" y="0" width="90" height="30" rx="4" fill="#4a6a4a" stroke="#6a8a6a" stroke-width="1" class="place-btn" id="place-btn-1" cursor="pointer"/>
+                        <text x="60" y="14" text-anchor="middle" fill="#ddd" font-size="10" pointer-events="none">Placer</text>
+                        <text x="60" y="25" text-anchor="middle" fill="#ddd" font-size="10" pointer-events="none">une pièce</text>
+                    </g>
+
+                    <!-- Station 2 (under ILS I3.6) -->
+                    <g class="station-group" transform="translate(260, 215)">
+                        <rect x="15" y="0" width="90" height="30" rx="4" fill="#4a6a4a" stroke="#6a8a6a" stroke-width="1" class="place-btn" id="place-btn-2" cursor="pointer"/>
+                        <text x="60" y="14" text-anchor="middle" fill="#ddd" font-size="10" pointer-events="none">Placer</text>
+                        <text x="60" y="25" text-anchor="middle" fill="#ddd" font-size="10" pointer-events="none">une pièce</text>
+                    </g>
+
+                    <!-- Station 3 (under ILS I3.7) -->
+                    <g class="station-group" transform="translate(390, 215)">
+                        <rect x="15" y="0" width="90" height="30" rx="4" fill="#4a6a4a" stroke="#6a8a6a" stroke-width="1" class="place-btn" id="place-btn-3" cursor="pointer"/>
+                        <text x="60" y="14" text-anchor="middle" fill="#ddd" font-size="10" pointer-events="none">Placer</text>
+                        <text x="60" y="25" text-anchor="middle" fill="#ddd" font-size="10" pointer-events="none">une pièce</text>
+                    </g>
+
+                    <!-- Station 4 (under optical sensor I3.0) -->
+                    <g class="station-group" transform="translate(525, 215)">
+                        <rect x="15" y="0" width="90" height="30" rx="4" fill="#4a6a4a" stroke="#6a8a6a" stroke-width="1" class="place-btn" id="place-btn-opt" cursor="pointer"/>
+                        <text x="60" y="14" text-anchor="middle" fill="#ddd" font-size="10" pointer-events="none">Placer</text>
+                        <text x="60" y="25" text-anchor="middle" fill="#ddd" font-size="10" pointer-events="none">une pièce</text>
+                    </g>
+
+                    <!-- Bottom indicators row -->
+                    <!-- Station 1: Q3.1 (LED sortie) and I3.1 (bouton poussoir) -->
+                    <g transform="translate(140, 260)">
+                        <text x="15" y="0" text-anchor="middle" fill="#bbb" font-size="10">Q3.1</text>
+                        <text x="85" y="0" text-anchor="middle" fill="#bbb" font-size="10">I3.1</text>
+                        <circle cx="15" cy="20" r="14" fill="#555" stroke="#777" stroke-width="2" id="led-q31"/>
+                        <circle cx="85" cy="20" r="14" fill="#cc0" stroke="#777" stroke-width="2" id="led-i31" class="bp-poste-btn" data-bit="1" cursor="pointer"/>
+                    </g>
+
+                    <!-- Station 2: Q3.2 and I3.2 -->
+                    <g transform="translate(270, 260)">
+                        <text x="15" y="0" text-anchor="middle" fill="#bbb" font-size="10">Q3.2</text>
+                        <text x="85" y="0" text-anchor="middle" fill="#bbb" font-size="10">I3.2</text>
+                        <circle cx="15" cy="20" r="14" fill="#555" stroke="#777" stroke-width="2" id="led-q32"/>
+                        <circle cx="85" cy="20" r="14" fill="#cc0" stroke="#777" stroke-width="2" id="led-i32" class="bp-poste-btn" data-bit="2" cursor="pointer"/>
+                    </g>
+
+                    <!-- Station 3: Q3.3 and I3.3 -->
+                    <g transform="translate(400, 260)">
+                        <text x="15" y="0" text-anchor="middle" fill="#bbb" font-size="10">Q3.3</text>
+                        <text x="85" y="0" text-anchor="middle" fill="#bbb" font-size="10">I3.3</text>
+                        <circle cx="15" cy="20" r="14" fill="#555" stroke="#777" stroke-width="2" id="led-q33"/>
+                        <circle cx="85" cy="20" r="14" fill="#cc0" stroke="#777" stroke-width="2" id="led-i33" class="bp-poste-btn" data-bit="3" cursor="pointer"/>
+                    </g>
+
+                    <!-- Station 4: Q3.4 and I3.4 -->
+                    <g transform="translate(535, 260)">
+                        <text x="15" y="0" text-anchor="middle" fill="#bbb" font-size="10">Q3.4</text>
+                        <text x="85" y="0" text-anchor="middle" fill="#bbb" font-size="10">I3.4</text>
+                        <circle cx="15" cy="20" r="14" fill="#555" stroke="#777" stroke-width="2" id="led-q34"/>
+                        <circle cx="85" cy="20" r="14" fill="#cc0" stroke="#777" stroke-width="2" id="led-i34" class="bp-poste-btn" data-bit="4" cursor="pointer"/>
+                    </g>
+
+                    <!-- Pieces on belt (dynamically shown) -->
+                    <g id="pieces-container"></g>
+
+                    <!-- Version -->
+                    <text x="730" y="330" text-anchor="end" fill="#8a8" font-size="10">v 1.0</text>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panneau de contrôle (floating window) -->
+    <div class="control-panel-window" id="control-panel-window" style="display:none;">
+        <div class="cpw-titlebar" id="cpw-titlebar">
+            <span>Panneau de contrôle</span>
+            <div class="cpw-buttons">
+                <button class="cpw-btn cpw-minimize" id="cpw-minimize">&#8722;</button>
+                <button class="cpw-btn cpw-close" id="cpw-close">&times;</button>
+            </div>
+        </div>
+        <div class="cpw-body" id="cpw-body">
+            <!-- TopLights -->
+            <div class="cpw-section">
+                <div class="cpw-section-title">TopLights</div>
+                <div class="cpw-toplights">
+                    <div class="toplight-pair">
+                        <div class="toplight-item">
+                            <div class="toplight-led" id="tl-q20"></div>
+                            <span>Q2.0</span>
+                        </div>
+                        <div class="toplight-item">
+                            <div class="toplight-led" id="tl-q21"></div>
+                            <span>Q2.1</span>
+                        </div>
+                    </div>
+                    <div class="toplight-pair">
+                        <div class="toplight-item">
+                            <div class="toplight-led" id="tl-q22"></div>
+                            <span>Q2.2</span>
+                        </div>
+                        <div class="toplight-item">
+                            <div class="toplight-led" id="tl-q23"></div>
+                            <span>Q2.3</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analog outputs QW32, QW34 -->
+            <div class="cpw-section cpw-analog-section">
+                <div class="cpw-analog-row">
+                    <label>QW32</label>
+                    <input type="text" class="cpw-analog-display" id="disp-qw32" value="0V" readonly>
+                </div>
+                <div class="cpw-analog-row">
+                    <label>QW34</label>
+                    <input type="text" class="cpw-analog-display" id="disp-qw34" value="0V" readonly>
+                </div>
+            </div>
+
+            <!-- Analog Inputs IW10, IW30 -->
+            <div class="cpw-section cpw-sliders-section">
+                <div class="cpw-sliders-row">
+                    <div class="cpw-slider-group">
+                        <label>IW10</label>
+                        <input type="range" id="slider-iw10" class="cpw-slider vertical-slider" min="0" max="27648" value="0" orient="vertical">
+                    </div>
+                    <div class="cpw-slider-group">
+                        <label>IW30</label>
+                        <input type="range" id="slider-iw30" class="cpw-slider vertical-slider" min="0" max="27648" value="0" orient="vertical">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main I/O section -->
+            <div class="cpw-io-container">
+                <!-- Switches (Interrupteurs) I0.0 - I0.7 -->
+                <div class="cpw-io-column">
+                    <div class="cpw-io-title">Interrupteurs</div>
+                    <div class="cpw-switches-list" id="switches-list">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+
+                <!-- LEDs Q0.0 - Q0.7 -->
+                <div class="cpw-io-column">
+                    <div class="cpw-io-title">LEDs</div>
+                    <div class="cpw-leds-list" id="leds-list">
+                        <!-- Generated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Dialog -->
+    <div class="dialog-overlay" id="dialog-connexion" style="display:none;">
+        <div class="dialog">
+            <div class="dialog-title">Connexion au PLC</div>
+            <div class="dialog-body">
+                <div class="form-row">
+                    <label>Mode :</label>
+                    <select id="conn-mode">
+                        <option value="simulation">Simulation locale</option>
+                        <option value="plcsim">PLCSim Advanced (via serveur)</option>
+                        <option value="s7">Automate réel ou NetToPLCSim — S7 Ethernet (via serveur)</option>
+                    </select>
+                </div>
+                <div id="conn-plc-options" style="display:none;">
+                    <div id="conn-s7-options" style="display:none;">
+                        <div class="form-row">
+                            <label>Adresse IP de l'automate :</label>
+                            <input type="text" id="conn-plc-ip" value="192.168.0.1" placeholder="IP ou IP:port">
+                        </div>
+                        <div class="form-row">
+                            <label>Rack :</label>
+                            <input type="number" id="conn-rack" value="0" min="0" max="7" style="width:60px">
+                            <label style="margin-left:10px">Slot :</label>
+                            <input type="number" id="conn-slot" value="1" min="0" max="31" style="width:60px">
+                        </div>
+                        <div class="form-info">
+                            S7-1500 / ET200SP réel : activer « Autoriser l'accès via communication PUT/GET »
+                            dans la CPU (Protection &amp; sécurité), rack 0, slot 1.<br>
+                            S7-PLCSIM classique : passer par NetToPLCSim (IP et rack/slot définis dans NetToPLCSim).
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label>Serveur local (port WebSocket) :</label>
+                        <input type="number" id="conn-ws-port" value="8765" min="1024" max="65535" style="width:80px">
+                        <span style="margin-left:8px;opacity:.8">laisser 8765 — ce n'est pas le port S7 (102) de l'automate</span>
+                    </div>
+                    <div class="form-info">
+                        Prérequis : le serveur <code>SITRAINSim.bat</code> (ou <code>SITRAINSim_S7.bat</code>) doit être lancé sur ce PC.
+                    </div>
+                </div>
+                <div class="dialog-buttons">
+                    <button class="btn-ok" id="conn-btn-connect">Connecter</button>
+                    <button class="btn-cancel" id="conn-btn-cancel">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aide Dialog -->
+    <div class="dialog-overlay" id="dialog-aide" style="display:none;">
+        <div class="dialog dialog-wide">
+            <div class="dialog-title">Aide — SITRAIN Simulator Web v1.0</div>
+            <div class="dialog-body">
+                <h3>Application Sitrain Simulator</h3>
+                <p>Cette application simule un convoyeur industriel Siemens pour la formation SITRAIN.</p>
+                <h4>Fonctionnalités :</h4>
+                <ul>
+                    <li><strong>Convoyeur</strong> : Visualisation du tapis avec capteurs, pièces et voyants</li>
+                    <li><strong>Panneau de contrôle</strong> : Interrupteurs (I0.0-I0.7), LEDs (Q0.0-Q0.7), curseurs analogiques</li>
+                    <li><strong>Connexion PLC</strong> : Mode simulation locale ou connexion via WebSocket à un PLC réel/PLCSim</li>
+                    <li><strong>Exercices</strong> : Sélection d'exercices SITRAIN (TIA-PRO1, TIA-PRO2, etc.)</li>
+                </ul>
+                <h4>Raccourcis clavier :</h4>
+                <ul>
+                    <li><strong>Espace</strong> : Placer une pièce</li>
+                    <li><strong>V</strong> : Table des variables</li>
+                    <li><strong>Echap</strong> : Fermer les fenêtres</li>
+                </ul>
+                <div class="dialog-buttons">
+                    <button class="btn-ok" id="aide-btn-close">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Affichage Dialog (Display mode selector) -->
+    <div class="dialog-overlay" id="dialog-affichage" style="display:none;">
+        <div class="dialog">
+            <div class="dialog-title">Affichage</div>
+            <div class="dialog-body">
+                <p style="margin-bottom:10px;color:#444;font-size:12px;">
+                    Choisissez le mode d'affichage des adresses sur le convoyeur et le panneau de contrôle :
+                </p>
+                <div class="affichage-options">
+                    <label class="affichage-radio">
+                        <input type="radio" name="display-mode" value="absolu" checked>
+                        <span class="affichage-radio-label">
+                            <strong>Absolu</strong>
+                            <span class="affichage-example">I3.5 &nbsp; Q3.1 &nbsp; IW10</span>
+                        </span>
+                    </label>
+                    <label class="affichage-radio">
+                        <input type="radio" name="display-mode" value="symbolique">
+                        <span class="affichage-radio-label">
+                            <strong>Symbolique</strong>
+                            <span class="affichage-example">B_Ini1 &nbsp; Q_Poste1 &nbsp; Curseur_1</span>
+                        </span>
+                    </label>
+                    <label class="affichage-radio">
+                        <input type="radio" name="display-mode" value="both">
+                        <span class="affichage-radio-label">
+                            <strong>Absolu + Symbolique</strong>
+                            <span class="affichage-example">I3.5 / B_Ini1 &nbsp; Q3.1 / Q_Poste1</span>
+                        </span>
+                    </label>
+                </div>
+                <div class="dialog-buttons">
+                    <button class="btn-ok" id="affichage-btn-close">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="exercises.js"></script>
+    <script src="simulator.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
